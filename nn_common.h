@@ -1,63 +1,63 @@
 #pragma once
 
 // Function Definitions
-float** alloc_2d(size_t array_i, size_t array_j);
-float sigmoid(float val);
-float sig_prime(float val);
+double** alloc_2d(int array_i, int array_j);
+double sigmoid(double val);
+double sig_prime(double val);
 
-void init_values(float* array, size_t array_size);
-void init_values2d(float** array, size_t array_i, size_t array_j);
-void print_array(float* array, size_t array_size);
-void print_array2d(float** array, size_t array_i, size_t array_j);
+void init_values(double* array, int array_size);
+void init_values2d(double** array, int array_i, int array_j);
+void print_array(double* array, int array_size);
+void print_array2d(double** array, int array_i, int array_j);
 
-float* randomize_array(size_t array_size);
+double* randomize_array(int array_size);
 
 // Struct & Method Definitions
 struct Network
 {
-    size_t input_count;
-    size_t pattern_count;
-    size_t hidden_count;
-    size_t output_count;
-    size_t epochs;
+    int input_count;
+    int pattern_count;
+    int hidden_count;
+    int output_count;
+    int epochs;
 
-    float eta;
+    double eta;
 
-    float** inputs;
-    float** targets;
+    double** inputs;
+    double** targets;
 
-    float* hidden_bias;
-    float** hidden;
+    double* hidden_bias;
+    double** hidden;
     
-    float* output_bias;
-    float** output;
+    double* output_bias;
+    double** output;
     
-    float** weights_ih;
-    float** weights_ho;
+    double** weights_ih;
+    double** weights_ho;
 
     struct NetworkTrainer* trainer;
-    float error;
+    double error;
 };
 struct NetworkTrainer
 {
-    float* hidden_delta; 
-    float* hidden_bias_delta;
-    float* sum_dow;
+    double* hidden_delta; 
+    double* hidden_bias_delta;
+    double* sum_dow;
     
-    float* output_delta;
-    float* output_bias_delta;
+    double* output_delta;
+    double* output_bias_delta;
     
-    float** weights_ih_delta;
-    float** weights_ho_delta;
+    double** weights_ih_delta;
+    double** weights_ho_delta;
 };
 
-struct Network* create_network(size_t input_count, size_t pattern_count,
-	size_t hidden_count, size_t output_count,
-	float learning_rate, size_t epochs);
-struct NetworkTrainer* create_network_trainer(size_t input_count, size_t pattern_count,
-	size_t hidden_count, size_t output_count);
+struct Network* create_network(int input_count, int pattern_count,
+	int hidden_count, int output_count,
+	double learning_rate, int epochs);
+struct NetworkTrainer* create_network_trainer(int input_count, int pattern_count,
+	int hidden_count, int output_count);
 
 void train_one_epoch(struct Network* network);
-void feed_forward(struct Network* network, size_t p);
-void backpropagate(struct Network* network, size_t p);
+void feed_forward(struct Network* network, int p);
+void backpropagate(struct Network* network, int p);
 void update_weights(struct Network* network);

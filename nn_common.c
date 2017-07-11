@@ -3,58 +3,58 @@
 
 #include "nn_common.h"
 
-float **alloc_2d(size_t array_i, size_t array_j)
+double **alloc_2d(int array_i, int array_j)
 {
-    float **new_array = calloc(array_i * array_j, sizeof(float *));
-    for (size_t i = 0; i < array_i; i++)
+    double **new_array = calloc(array_i * array_j, sizeof(double *));
+    for (int i = 0; i < array_i; i++)
     {
-        new_array[i] = calloc(array_j, sizeof(float));
+        new_array[i] = calloc(array_j, sizeof(double));
     }
     return new_array;
 }
 
-float sigmoid(float val)
+double sigmoid(double val)
 {
     return 1.0f / (1.0f + exp(-val));
 }
 
-float sig_prime(float val)
+double sig_prime(double val)
 {
     return sigmoid(val) * (1.0f - sigmoid(val));
 }
 
-void init_values(float *array, size_t array_size)
+void init_values(double *array, int array_size)
 {
-    for (size_t i = 0; i < array_size; i++)
+    for (int i = 0; i < array_size; i++)
     {
-        array[i] = 2.0 * (((float)rand() / (RAND_MAX + 1)) - 0.5) * 1;
+        array[i] = 2.0 * (((double)rand() / (RAND_MAX + 1)) - 0.5) * 1;
     }
 }
 
-void init_values2d(float **array, size_t array_i, size_t array_j)
+void init_values2d(double **array, int array_i, int array_j)
 {
-    for (size_t i = 0; i < array_i; i++)
+    for (int i = 0; i < array_i; i++)
     {
         init_values(array[i], array_j);
     }
 }
 
-void print_array(float *array, size_t array_size)
+void print_array(double *array, int array_size)
 {
     printf("*********\n");
-    for (size_t i = 0; i < array_size; i++)
+    for (int i = 0; i < array_size; i++)
     {
         printf("%f ", array[i]);
     }
     printf("\n*********\n");
 }
 
-void print_array2d(float **array, size_t array_i, size_t array_j)
+void print_array2d(double **array, int array_i, int array_j)
 {
     printf("*********\n");
-    for (size_t i = 0; i < array_i; i++)
+    for (int i = 0; i < array_i; i++)
     {
-        for (size_t j = 0; j < array_j; j++)
+        for (int j = 0; j < array_j; j++)
         {
             printf("%f ", array[i][j]);
         }
@@ -63,26 +63,26 @@ void print_array2d(float **array, size_t array_i, size_t array_j)
     printf("\n*********\n");
 }
 
-float *randomize_array(size_t array_size)
+double *randomize_array(int array_size)
 {
-    float *random_array = calloc(array_size, sizeof(float));
-    for (size_t p = 0; p < array_size; p++)
+    double *random_array = calloc(array_size, sizeof(double));
+    for (int p = 0; p < array_size; p++)
     {
         random_array[p] = p;
     }
-    for (size_t p = 0; p < array_size; p++)
+    for (int p = 0; p < array_size; p++)
     {
-        size_t np = p + ((float)rand() / (RAND_MAX + 1)) * (array_size - p);
-        size_t op = random_array[p];
+        int np = p + ((double)rand() / (RAND_MAX + 1)) * (array_size - p);
+        int op = random_array[p];
         random_array[p] = np;
         random_array[np] = op;
     }
     return random_array;
 }
 
-struct Network* create_network(size_t input_count, size_t pattern_count,
-	size_t hidden_count, size_t output_count,
-	float learning_rate, size_t epochs)
+struct Network* create_network(int input_count, int pattern_count,
+	int hidden_count, int output_count,
+	double learning_rate, int epochs)
 {
     struct Network* network = malloc(sizeof(struct Network));
     if (network == NULL) return NULL;
@@ -97,11 +97,11 @@ struct Network* create_network(size_t input_count, size_t pattern_count,
     network->inputs = alloc_2d(pattern_count, input_count);
     network->targets = alloc_2d(pattern_count, output_count);
 
-    network->hidden_bias = calloc(hidden_count, sizeof(float));
+    network->hidden_bias = calloc(hidden_count, sizeof(double));
     init_values(network->hidden_bias, hidden_count);
     network->hidden = alloc_2d(pattern_count, hidden_count);
 
-    network->output_bias = calloc(hidden_count, sizeof(float));
+    network->output_bias = calloc(hidden_count, sizeof(double));
     init_values(network->output_bias, output_count);
     network->output = alloc_2d(pattern_count, output_count);
     
@@ -117,18 +117,18 @@ struct Network* create_network(size_t input_count, size_t pattern_count,
     return network;
 }
 
-struct NetworkTrainer* create_network_trainer(size_t input_count, size_t pattern_count,
-	size_t hidden_count, size_t output_count)
+struct NetworkTrainer* create_network_trainer(int input_count, int pattern_count,
+	int hidden_count, int output_count)
 {
     struct NetworkTrainer* trainer = malloc(sizeof(struct NetworkTrainer));
     if (trainer == NULL) return NULL;
 
-    trainer->hidden_delta = calloc(hidden_count, sizeof(float));
-    trainer->hidden_bias_delta = calloc(hidden_count, sizeof(float));
-    trainer->sum_dow = calloc(hidden_count, sizeof(float));
+    trainer->hidden_delta = calloc(hidden_count, sizeof(double));
+    trainer->hidden_bias_delta = calloc(hidden_count, sizeof(double));
+    trainer->sum_dow = calloc(hidden_count, sizeof(double));
 
-    trainer->output_delta = calloc(output_count, sizeof(float));
-    trainer->output_bias_delta = calloc(output_count, sizeof(float));
+    trainer->output_delta = calloc(output_count, sizeof(double));
+    trainer->output_bias_delta = calloc(output_count, sizeof(double));
 
     trainer->weights_ih_delta = alloc_2d(input_count, hidden_count);
     trainer->weights_ho_delta = alloc_2d(hidden_count, output_count);
@@ -140,7 +140,7 @@ void train_one_epoch(struct Network* network)
 {
     network->error = 0.0f;
 
-    size_t p, k;
+    int p, k;
     for (p = 0; p < network->pattern_count; p++)
     {
 	feed_forward(network, p);
@@ -155,9 +155,9 @@ void train_one_epoch(struct Network* network)
     update_weights(network);
 }
 
-void feed_forward(struct Network* network, size_t p)
+void feed_forward(struct Network* network, int p)
 {
-    size_t i, j, k;
+    int i, j, k;
     // Feed-forward to hidden neurons
     for (j = 0; j < network->hidden_count; j++)
     {
@@ -183,10 +183,10 @@ void feed_forward(struct Network* network, size_t p)
     }
 }
 
-void backpropagate(struct Network* network, size_t p)
+void backpropagate(struct Network* network, int p)
 {
     struct NetworkTrainer* trainer = network->trainer;
-    size_t i, j, k;
+    int i, j, k;
     // Calculate output delta & change to hidden-output weights
     for (k = 0; k < network->output_count; k++)
     {
@@ -219,7 +219,7 @@ void backpropagate(struct Network* network, size_t p)
 void update_weights(struct Network* network)
 {
     struct NetworkTrainer* trainer = network->trainer;
-    size_t i, j, k;
+    int i, j, k;
     // Updates the hidden bias & input-hidden weights
     for (i = 0; i < network->input_count; i++)
     {
